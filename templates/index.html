@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Complaint Management System - Home{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Hero Banner -->
+    <div class="hero-section text-center px-3 mb-5">
+        <div class="container">
+            <span class="badge bg-primary px-3 py-2 rounded-pill text-uppercase tracking-wide mb-3 fw-bold">Online Resolution Portal</span>
+            <h1 class="display-4 fw-bold mb-3">Online Complaint Management System</h1>
+            <p class="lead text-light opacity-75 max-w-2xl mx-auto mb-4" style="max-width: 700px;">
+                A centralized digital platform designed to streamline issue reporting, track resolution status in real-time, and ensure accountable grievance redressal.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary btn-lg px-4 shadow">
+                        <i class="fa-solid fa-gauge me-2"></i>Go to User Dashboard
+                    </a>
+                    <a href="{{ url_for('add_complaint') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fa-solid fa-plus-circle me-2"></i>Submit New Complaint
+                    </a>
+                {% elif session.get('admin_id') %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-warning btn-lg px-4 text-dark fw-bold shadow">
+                        <i class="fa-solid fa-chart-pie me-2"></i>Go to Admin Dashboard
+                    </a>
+                    <a href="{{ url_for('manage_complaints') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fa-solid fa-tasks me-2"></i>Manage Complaints
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 shadow">
+                        <i class="fa-solid fa-user me-2"></i>User Portal Access
+                    </a>
+                    <a href="{{ url_for('admin_login') }}" class="btn btn-warning btn-lg px-4 text-dark fw-bold shadow">
+                        <i class="fa-solid fa-shield-halved me-2"></i>Admin Portal Access
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fa-solid fa-user-plus me-2"></i>New User Registration
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Portal Access Shortcut Cards -->
+            <div class="row g-3 justify-content-center max-w-xl mx-auto mt-4" style="max-width: 750px;">
+                <div class="col-md-6 text-start">
+                    <div class="card bg-dark text-white border-primary shadow h-100 p-2">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-primary"><i class="fa-solid fa-user-circle me-2"></i>User Portal</h5>
+                            <p class="small text-light opacity-75 mb-3">For students & staff to lodge complaints, track status, and view admin remarks.</p>
+                            <a href="{{ url_for('login') }}" class="btn btn-sm btn-primary w-100 fw-semibold">Launch User Portal &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-start">
+                    <div class="card bg-dark text-white border-warning shadow h-100 p-2">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-warning"><i class="fa-solid fa-shield-halved me-2"></i>Admin Portal</h5>
+                            <p class="small text-light opacity-75 mb-3">For administrators to manage grievances, update status, view charts, and manage users.</p>
+                            <a href="{{ url_for('admin_login') }}" class="btn btn-sm btn-warning text-dark w-100 fw-bold">Launch Admin Portal &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Statistics Counter Bar -->
+    <div class="container mb-5">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-number">{{ total_complaints }}</div>
+                        <div class="stat-label">Total Complaints Logged</div>
+                    </div>
+                    <div class="stat-icon icon-blue">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-number text-success">{{ resolved_complaints }}</div>
+                        <div class="stat-label">Resolved Issues</div>
+                    </div>
+                    <div class="stat-icon icon-emerald">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-number text-warning">{{ pending_complaints }}</div>
+                        <div class="stat-label">Pending Reviews</div>
+                    </div>
+                    <div class="stat-icon icon-amber">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-number text-primary">{{ registered_users }}</div>
+                        <div class="stat-label">Active Registered Users</div>
+                    </div>
+                    <div class="stat-icon icon-sky">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Categories & Features -->
+    <div class="container mb-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Supported Complaint Categories</h2>
+            <p class="text-muted">Easily classify your concerns for fast-track resolution by specific domain experts</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="card-body">
+                        <div class="stat-icon icon-blue mb-3">
+                            <i class="fa-solid fa-laptop-code"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Technical Issues</h5>
+                        <p class="card-text text-muted">Software bugs, portal access failures, network connectivity, hardware glitches, and login errors.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="card-body">
+                        <div class="stat-icon icon-amber mb-3">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Academic Issues</h5>
+                        <p class="card-text text-muted">Course materials, examination schedules, marksheets, syllabus clarifications, and faculty assistance.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="card-body">
+                        <div class="stat-icon icon-sky mb-3">
+                            <i class="fa-solid fa-building-user"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Infrastructure Issues</h5>
+                        <p class="card-text text-muted">Classroom facilities, lab equipment, electrical fittings, air conditioning, and physical maintenance.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="card-body">
+                        <div class="stat-icon icon-emerald mb-3">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Service Issues</h5>
+                        <p class="card-text text-muted">Library services, hostel facilities, cafeteria quality, transportation, and administrative support services.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="card-body">
+                        <div class="stat-icon icon-rose mb-3">
+                            <i class="fa-solid fa-ellipsis-h"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Other General Concerns</h5>
+                        <p class="card-text text-muted">Any other grievances or suggestions not explicitly covered under standard operational categories.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow / How it Works Section -->
+    <div class="bg-white py-5 border-top border-bottom">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">How The System Works</h2>
+                <p class="text-muted">3 simple steps to lodge and resolve grievances</p>
+            </div>
+            <div class="row text-center g-4">
+                <div class="col-md-4">
+                    <div class="p-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">1</div>
+                        <h5 class="fw-bold">Register & Submit</h5>
+                        <p class="text-muted">Create an account, select the category, set priority, and describe your issue with auto-generated Ticket ID.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">2</div>
+                        <h5 class="fw-bold">Admin Processing</h5>
+                        <p class="text-muted">Administrators evaluate the ticket, update status (In Progress), assign priority, and take required actions.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px; font-size: 1.5rem;">3</div>
+                        <h5 class="fw-bold">Resolution & Tracking</h5>
+                        <p class="text-muted">Receive official admin remarks, track status updates to 'Resolved', and view detailed complaint logs anytime.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

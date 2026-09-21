@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Complaints - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fa-solid fa-list-check text-primary me-2"></i>Manage All System Complaints</h3>
+            <p class="text-muted mb-0">Search, review, update resolution status, and add administrative remarks</p>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Admin Dashboard
+        </a>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="custom-card p-3 mb-4">
+        <form action="{{ url_for('manage_complaints') }}" method="GET" class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                    <input type="text" class="form-control" name="search" id="tableSearchInput" placeholder="Search ID, title, user, email..." value="{{ search_query }}">
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" name="category" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select class="form-select" name="status" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for st in statuses %}
+                        <option value="{{ st }}" {% if selected_status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select class="form-select" name="priority" onchange="this.form.submit()">
+                    <option value="">All Priorities</option>
+                    {% for pr in priorities %}
+                        <option value="{{ pr }}" {% if selected_priority == pr %}selected{% endif %}>{{ pr }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">Apply</button>
+                <a href="{{ url_for('manage_complaints') }}" class="btn btn-outline-secondary" title="Reset Filters"><i class="fa-solid fa-rotate"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="custom-card">
+        <div class="table-responsive">
+            <table class="table custom-table filterable-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>User Name & Email</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Submitted On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if complaints %}
+                        {% for complaint in complaints %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ complaint.complaint_number }}</td>
+                            <td>
+                                <div class="fw-bold">{{ complaint.user.name }}</div>
+                                <small class="text-muted"><i class="fa-solid fa-envelope me-1"></i>{{ complaint.user.email }}</small><br>
+                                <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>{{ complaint.user.mobile }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ complaint.title }}</div>
+                                <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">{{ complaint.description }}</small>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ complaint.category }}</span></td>
+                            <td>
+                                {% if complaint.priority == 'High' %}
+                                    <span class="badge-priority priority-high"><i class="fa-solid fa-triangle-exclamation me-1"></i>High</span>
+                                {% elif complaint.priority == 'Medium' %}
+                                    <span class="badge-priority priority-medium">Medium</span>
+                                {% else %}
+                                    <span class="badge-priority priority-low">Low</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if complaint.status == 'Pending' %}
+                                    <span class="badge-status badge-pending"><i class="fa-solid fa-clock me-1"></i>Pending</span>
+                                {% elif complaint.status == 'In Progress' %}
+                                    <span class="badge-status badge-in-progress"><i class="fa-solid fa-spinner fa-spin me-1"></i>In Progress</span>
+                                {% elif complaint.status == 'Resolved' %}
+                                    <span class="badge-status badge-resolved"><i class="fa-solid fa-circle-check me-1"></i>Resolved</span>
+                                {% else %}
+                                    <span class="badge-status badge-rejected"><i class="fa-solid fa-circle-xmark me-1"></i>Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ complaint.created_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#actionModal{{ complaint.id }}" title="Update Status">
+                                        <i class="fa-solid fa-pen-to-square"></i> Update
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ complaint.id }}" title="Delete Record">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Action Modal: Update Status & Add Remark -->
+                        <div class="modal fade" id="actionModal{{ complaint.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <form action="{{ url_for('update_complaint_status', complaint_id=complaint.id) }}" method="POST">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title fw-bold">
+                                                <i class="fa-solid fa-gears me-2"></i>Update Status: {{ complaint.complaint_number }}
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <!-- User & Ticket Summary -->
+                                            <div class="row g-3 p-3 bg-light rounded mb-3">
+                                                <div class="col-md-6">
+                                                    <small class="text-muted d-block">Complainant</small>
+                                                    <strong>{{ complaint.user.name }} ({{ complaint.user.email }})</strong>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted d-block">Category</small>
+                                                    <span class="badge bg-secondary">{{ complaint.category }}</span>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted d-block">Priority</small>
+                                                    <span class="fw-bold">{{ complaint.priority }}</span>
+                                                </div>
+                                                <div class="col-12 mt-2">
+                                                    <small class="text-muted d-block">Title</small>
+                                                    <div class="fw-bold">{{ complaint.title }}</div>
+                                                </div>
+                                                <div class="col-12 mt-2">
+                                                    <small class="text-muted d-block">Full Description</small>
+                                                    <div class="p-2 bg-white border rounded small">{{ complaint.description }}</div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Status Update Controls -->
+                                            <div class="mb-3">
+                                                <label for="statusSelect{{ complaint.id }}" class="form-label fw-semibold">Select New Status <span class="text-danger">*</span></label>
+                                                <select class="form-select" id="statusSelect{{ complaint.id }}" name="status" required>
+                                                    <option value="Pending" {% if complaint.status == 'Pending' %}selected{% endif %}>Pending - Awaiting Investigation</option>
+                                                    <option value="In Progress" {% if complaint.status == 'In Progress' %}selected{% endif %}>In Progress - Under Investigation / Action Taken</option>
+                                                    <option value="Resolved" {% if complaint.status == 'Resolved' %}selected{% endif %}>Resolved - Issue Addressed & Closed</option>
+                                                    <option value="Rejected" {% if complaint.status == 'Rejected' %}selected{% endif %}>Rejected - Invalid or Duplicate Request</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="admin_remark" class="form-label fw-semibold">Administrator Remarks / Resolution Notes</label>
+                                                <textarea class="form-control" name="admin_remark" rows="4" placeholder="Enter details regarding the resolution, assigned department, action taken, or reason for rejection...">{{ complaint.admin_remark or '' }}</textarea>
+                                                <div class="form-text">These remarks will be visible to the user when tracking their ticket.</div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary fw-bold">
+                                                <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal fade" id="deleteModal{{ complaint.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ url_for('delete_complaint', complaint_id=complaint.id) }}" method="POST">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title fw-bold">
+                                                <i class="fa-solid fa-triangle-exclamation me-2"></i>Confirm Deletion
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-4 text-center">
+                                            <i class="fa-solid fa-trash-can fa-3x text-danger mb-3"></i>
+                                            <h5>Are you sure you want to delete complaint ticket <strong>{{ complaint.complaint_number }}</strong>?</h5>
+                                            <p class="text-muted mb-0">This action cannot be undone. The complaint history will be permanently erased.</p>
+                                        </div>
+                                        <div class="modal-footer justify-content-center">
+                                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-danger fw-bold">
+                                                <i class="fa-solid fa-trash me-1"></i> Permanently Delete
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-folder-open fa-2x mb-2 d-block opacity-50"></i>
+                                No matching complaints found in the database.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

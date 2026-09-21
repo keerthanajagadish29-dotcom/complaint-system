@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}User Login - Complaint Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fa-solid fa-right-to-bracket fa-2x mb-2"></i>
+            <h4 class="fw-bold mb-0">User Login</h4>
+            <small class="opacity-75">Access your complaint dashboard & track status</small>
+        </div>
+        <div class="auth-body">
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required autofocus>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-semibold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-primary btn-lg fw-semibold">
+                        <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Log In
+                    </button>
+                </div>
+            </form>
+
+            <hr class="my-3">
+            <div class="text-center">
+                <p class="mb-1 text-muted">Don't have an account?</p>
+                <a href="{{ url_for('register') }}" class="fw-bold text-primary text-decoration-none">
+                    <i class="fa-solid fa-user-plus me-1"></i>Create New Account
+                </a>
+            </div>
+            <div class="text-center mt-3 pt-2 border-top">
+                <a href="{{ url_for('admin_login') }}" class="text-muted text-decoration-none small">
+                    <i class="fa-solid fa-shield-halved me-1 text-warning"></i>Are you an Administrator? Login here
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

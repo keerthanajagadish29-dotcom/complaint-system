@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}My Complaints - Complaint Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fa-solid fa-list-check text-primary me-2"></i>My Submitted Complaints</h3>
+            <p class="text-muted mb-0">Track live status updates and admin responses for your lodged tickets</p>
+        </div>
+        <a href="{{ url_for('add_complaint') }}" class="btn btn-primary fw-semibold shadow-sm">
+            <i class="fa-solid fa-plus-circle me-1"></i> Submit New Complaint
+        </a>
+    </div>
+
+    <!-- Filter & Search Toolbar Card -->
+    <div class="custom-card p-3 mb-4">
+        <form action="{{ url_for('my_complaints') }}" method="GET" class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                    <input type="text" class="form-control" name="search" id="tableSearchInput" placeholder="Search by Ticket ID, Title, or Description..." value="{{ search_query }}">
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" name="category" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" name="status" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for st in statuses %}
+                        <option value="{{ st }}" {% if selected_status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100 fw-semibold">Filter</button>
+                <a href="{{ url_for('my_complaints') }}" class="btn btn-outline-secondary" title="Reset Filters"><i class="fa-solid fa-rotate"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Complaints Data Table Card -->
+    <div class="custom-card">
+        <div class="table-responsive">
+            <table class="table custom-table filterable-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Submission Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if complaints %}
+                        {% for complaint in complaints %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ complaint.complaint_number }}</td>
+                            <td>
+                                <span class="fw-semibold text-dark">{{ complaint.title }}</span>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ complaint.category }}</span></td>
+                            <td>
+                                {% if complaint.priority == 'High' %}
+                                    <span class="badge-priority priority-high"><i class="fa-solid fa-triangle-exclamation me-1"></i>High</span>
+                                {% elif complaint.priority == 'Medium' %}
+                                    <span class="badge-priority priority-medium">Medium</span>
+                                {% else %}
+                                    <span class="badge-priority priority-low">Low</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if complaint.status == 'Pending' %}
+                                    <span class="badge-status badge-pending"><i class="fa-solid fa-clock me-1"></i>Pending</span>
+                                {% elif complaint.status == 'In Progress' %}
+                                    <span class="badge-status badge-in-progress"><i class="fa-solid fa-spinner fa-spin me-1"></i>In Progress</span>
+                                {% elif complaint.status == 'Resolved' %}
+                                    <span class="badge-status badge-resolved"><i class="fa-solid fa-circle-check me-1"></i>Resolved</span>
+                                {% else %}
+                                    <span class="badge-status badge-rejected"><i class="fa-solid fa-circle-xmark me-1"></i>Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ complaint.created_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#detailModal{{ complaint.id }}">
+                                    <i class="fa-solid fa-eye me-1"></i>Details
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal Details -->
+                        <div class="modal fade" id="detailModal{{ complaint.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title fw-bold">
+                                            <i class="fa-solid fa-ticket me-2"></i>Ticket {{ complaint.complaint_number }}
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <!-- Progress Bar / Tracker -->
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold mb-3">Resolution Progress</h6>
+                                            <div class="progress" style="height: 10px;">
+                                                {% if complaint.status == 'Pending' %}
+                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 25%"></div>
+                                                {% elif complaint.status == 'In Progress' %}
+                                                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar" style="width: 60%"></div>
+                                                {% elif complaint.status == 'Resolved' %}
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                                                {% else %}
+                                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="d-flex justify-content-between mt-2 small text-muted">
+                                                <span class="{% if complaint.status in ['Pending', 'In Progress', 'Resolved'] %}fw-bold text-dark{% endif %}">1. Submitted</span>
+                                                <span class="{% if complaint.status in ['In Progress', 'Resolved'] %}fw-bold text-dark{% endif %}">2. Under Review</span>
+                                                <span class="{% if complaint.status == 'Resolved' %}fw-bold text-success{% elif complaint.status == 'Rejected' %}fw-bold text-danger{% endif %}">3. Final Result</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-8">
+                                                <label class="small text-muted d-block">Title</label>
+                                                <div class="fw-bold fs-6">{{ complaint.title }}</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="small text-muted d-block">Category</label>
+                                                <span class="badge bg-secondary">{{ complaint.category }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="small text-muted d-block">Description</label>
+                                            <div class="p-3 bg-light border rounded" style="white-space: pre-wrap;">{{ complaint.description }}</div>
+                                        </div>
+
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-4">
+                                                <label class="small text-muted d-block">Priority</label>
+                                                <strong>{{ complaint.priority }}</strong>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="small text-muted d-block">Date Submitted</label>
+                                                <span>{{ complaint.created_date.strftime('%B %d, %Y %H:%M') }}</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="small text-muted d-block">Last Updated</label>
+                                                <span>{{ complaint.updated_date.strftime('%B %d, %Y %H:%M') }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Admin Remarks Section -->
+                                        <div class="mt-4 pt-3 border-top">
+                                            <h6 class="fw-bold mb-2"><i class="fa-solid fa-comment-dots text-primary me-2"></i>Administrator Resolution Remarks</h6>
+                                            {% if complaint.admin_remark %}
+                                                <div class="p-3 bg-info-subtle border border-info rounded text-dark">
+                                                    {{ complaint.admin_remark }}
+                                                </div>
+                                            {% else %}
+                                                <div class="p-3 bg-light text-muted border rounded">
+                                                    <i class="fa-solid fa-hourglass-start me-2"></i>Pending administrator review and remarks.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-search fa-2x mb-2 d-block opacity-50"></i>
+                                No matching complaints found. Try clearing your filters or submit a new complaint.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

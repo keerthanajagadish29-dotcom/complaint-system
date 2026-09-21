@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Login - Complaint Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-card" style="max-width: 450px;">
+        <div class="auth-header bg-dark text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-bottom: 3px solid var(--accent-color);">
+            <i class="fa-solid fa-shield-halved fa-2x mb-2 text-warning"></i>
+            <h4 class="fw-bold mb-0">Administrator Portal</h4>
+            <small class="text-light opacity-75">Secure Administrative Login</small>
+        </div>
+        <div class="auth-body">
+            <form action="{{ url_for('admin_login') }}" method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-semibold">Admin Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user-shield"></i></span>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="e.g. admin" required autofocus>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-semibold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter admin password" required>
+                    </div>
+                </div>
+
+                <div class="alert alert-info py-2 px-3 small mb-3">
+                    <i class="fa-solid fa-circle-info me-1"></i> Default credentials: <strong>admin</strong> / <strong>admin123</strong>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-warning btn-lg fw-bold text-dark">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>Access Admin Dashboard
+                    </button>
+                </div>
+            </form>
+
+            <hr class="my-3">
+            <div class="text-center">
+                <a href="{{ url_for('login') }}" class="text-muted text-decoration-none small">
+                    <i class="fa-solid fa-arrow-left me-1"></i>Return to User Portal Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

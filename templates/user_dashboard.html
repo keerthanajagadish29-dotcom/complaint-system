@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}User Dashboard - Complaint Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header banner -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Welcome back, {{ user.name }}!</h3>
+            <p class="text-muted mb-0">Overview of your submitted grievances and resolution status</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a href="{{ url_for('add_complaint') }}" class="btn btn-primary shadow-sm fw-semibold">
+                <i class="fa-solid fa-plus-circle me-1"></i> Submit New Complaint
+            </a>
+            <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary ms-2 fw-semibold">
+                <i class="fa-solid fa-user-pen me-1"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-number">{{ total }}</div>
+                    <div class="stat-label">Total Complaints</div>
+                </div>
+                <div class="stat-icon icon-blue">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-number text-warning">{{ pending }}</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+                <div class="stat-icon icon-amber">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-number text-info">{{ in_progress }}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-icon icon-sky">
+                    <i class="fa-solid fa-spinner"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-number text-success">{{ resolved }}</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+                <div class="stat-icon icon-emerald">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Complaints Table Card -->
+    <div class="custom-card mb-4">
+        <div class="custom-card-header">
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Recent Complaint History</h5>
+            <a href="{{ url_for('my_complaints') }}" class="btn btn-sm btn-outline-primary fw-semibold">
+                View All Complaints <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table custom-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Date Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_complaints %}
+                        {% for complaint in recent_complaints %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ complaint.complaint_number }}</td>
+                            <td>{{ complaint.title }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ complaint.category }}</span></td>
+                            <td>
+                                {% if complaint.priority == 'High' %}
+                                    <span class="badge-priority priority-high"><i class="fa-solid fa-triangle-exclamation me-1"></i>High</span>
+                                {% elif complaint.priority == 'Medium' %}
+                                    <span class="badge-priority priority-medium">Medium</span>
+                                {% else %}
+                                    <span class="badge-priority priority-low">Low</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if complaint.status == 'Pending' %}
+                                    <span class="badge-status badge-pending"><i class="fa-solid fa-clock me-1"></i>Pending</span>
+                                {% elif complaint.status == 'In Progress' %}
+                                    <span class="badge-status badge-in-progress"><i class="fa-solid fa-spinner fa-spin me-1"></i>In Progress</span>
+                                {% elif complaint.status == 'Resolved' %}
+                                    <span class="badge-status badge-resolved"><i class="fa-solid fa-circle-check me-1"></i>Resolved</span>
+                                {% else %}
+                                    <span class="badge-status badge-rejected"><i class="fa-solid fa-circle-xmark me-1"></i>Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ complaint.created_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewModal{{ complaint.id }}">
+                                    <i class="fa-solid fa-eye me-1"></i>View
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- View Complaint Modal -->
+                        <div class="modal fade" id="viewModal{{ complaint.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-light">
+                                        <h5 class="modal-title fw-bold">
+                                            <i class="fa-solid fa-ticket me-2 text-primary"></i>Complaint Details - {{ complaint.complaint_number }}
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">Complaint Title</small>
+                                                <strong class="fs-6">{{ complaint.title }}</strong>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted d-block">Category</small>
+                                                <span class="badge bg-secondary">{{ complaint.category }}</span>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted d-block">Priority</small>
+                                                <span class="fw-bold">{{ complaint.priority }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">Description</small>
+                                            <div class="p-3 bg-light rounded text-dark mt-1" style="white-space: pre-wrap;">{{ complaint.description }}</div>
+                                        </div>
+
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">Current Status</small>
+                                                {% if complaint.status == 'Pending' %}
+                                                    <span class="badge-status badge-pending">Pending</span>
+                                                {% elif complaint.status == 'In Progress' %}
+                                                    <span class="badge-status badge-in-progress">In Progress</span>
+                                                {% elif complaint.status == 'Resolved' %}
+                                                    <span class="badge-status badge-resolved">Resolved</span>
+                                                {% else %}
+                                                    <span class="badge-status badge-rejected">Rejected</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted d-block">Submission Date</small>
+                                                <span>{{ complaint.created_date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                                            </div>
+                                        </div>
+
+                                        {% if complaint.admin_remark %}
+                                        <div class="alert alert-info border-info mb-0">
+                                            <h6 class="fw-bold alert-heading mb-1"><i class="fa-solid fa-comment-dots me-2"></i>Administrator Remarks:</h6>
+                                            <p class="mb-0">{{ complaint.admin_remark }}</p>
+                                        </div>
+                                        {% else %}
+                                        <div class="alert alert-light border mb-0 text-muted">
+                                            <i class="fa-solid fa-clock me-2"></i>No administrator remarks added yet.
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fa-solid fa-folder-open fa-2x mb-2 d-block opacity-50"></i>
+                                No complaints submitted yet. <a href="{{ url_for('add_complaint') }}">Submit your first complaint</a>.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard & Analytics - Complaint Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fa-solid fa-chart-line text-warning me-2"></i>Administrator Control Panel</h3>
+            <p class="text-muted mb-0">System-wide analytics, metrics, and grievance oversight</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a href="{{ url_for('manage_complaints') }}" class="btn btn-primary fw-semibold shadow-sm">
+                <i class="fa-solid fa-tasks me-1"></i> Manage All Complaints
+            </a>
+            <a href="{{ url_for('manage_users') }}" class="btn btn-outline-dark ms-2 fw-semibold">
+                <i class="fa-solid fa-users me-1"></i> View Users
+            </a>
+        </div>
+    </div>
+
+    <!-- System Metrics Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-card p-3">
+                <div>
+                    <div class="stat-number">{{ total }}</div>
+                    <div class="stat-label">Total Logged</div>
+                </div>
+                <div class="stat-icon icon-blue" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-card p-3">
+                <div>
+                    <div class="stat-number text-warning">{{ pending }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-icon icon-amber" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-card p-3">
+                <div>
+                    <div class="stat-number text-info">{{ in_progress }}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-icon icon-sky" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                    <i class="fa-solid fa-spinner"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-card p-3">
+                <div>
+                    <div class="stat-number text-success">{{ resolved }}</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+                <div class="stat-icon icon-emerald" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-card p-3">
+                <div>
+                    <div class="stat-number text-danger">{{ rejected }}</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+                <div class="stat-icon icon-rose" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-card p-3">
+                <div>
+                    <div class="stat-number text-primary">{{ total_users }}</div>
+                    <div class="stat-label">Users</div>
+                </div>
+                <div class="stat-icon icon-blue" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Analytics Row -->
+    <div class="row g-4 mb-4">
+        <!-- Status Doughnut Chart -->
+        <div class="col-lg-4">
+            <div class="custom-card p-4 h-100">
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Complaint Status Breakdown</h6>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Bar Chart -->
+        <div class="col-lg-5">
+            <div class="custom-card p-4 h-100">
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-column me-2 text-primary"></i>Category-wise Complaints</h6>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Breakdown Chart -->
+        <div class="col-lg-3">
+            <div class="custom-card p-4 h-100">
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Priority Distribution</h6>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="priorityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Complaints Table -->
+    <div class="custom-card mb-4">
+        <div class="custom-card-header">
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-list me-2 text-primary"></i>Recently Lodged Complaints</h5>
+            <a href="{{ url_for('manage_complaints') }}" class="btn btn-sm btn-outline-primary fw-semibold">
+                Manage All Complaints <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table custom-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>User Name & Email</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_complaints %}
+                        {% for complaint in recent_complaints %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ complaint.complaint_number }}</td>
+                            <td>
+                                <div class="fw-bold">{{ complaint.user.name }}</div>
+                                <small class="text-muted">{{ complaint.user.email }}</small>
+                            </td>
+                            <td>{{ complaint.title }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ complaint.category }}</span></td>
+                            <td>
+                                {% if complaint.priority == 'High' %}
+                                    <span class="badge-priority priority-high">High</span>
+                                {% elif complaint.priority == 'Medium' %}
+                                    <span class="badge-priority priority-medium">Medium</span>
+                                {% else %}
+                                    <span class="badge-priority priority-low">Low</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if complaint.status == 'Pending' %}
+                                    <span class="badge-status badge-pending">Pending</span>
+                                {% elif complaint.status == 'In Progress' %}
+                                    <span class="badge-status badge-in-progress">In Progress</span>
+                                {% elif complaint.status == 'Resolved' %}
+                                    <span class="badge-status badge-resolved">Resolved</span>
+                                {% else %}
+                                    <span class="badge-status badge-rejected">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('manage_complaints', search=complaint.complaint_number) }}" class="btn btn-sm btn-primary">
+                                    <i class="fa-solid fa-gear me-1"></i>Manage
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No complaints recorded yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

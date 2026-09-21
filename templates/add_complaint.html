@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Complaint - Complaint Management System{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fa-solid fa-square-plus text-primary me-2"></i>Submit New Complaint</h3>
+            <p class="text-muted mb-0">Fill in the details below to lodge your grievance into the portal</p>
+        </div>
+        <a href="{{ url_for('user_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="custom-card p-4">
+        <form action="{{ url_for('add_complaint') }}" method="POST">
+            <div class="mb-3">
+                <label for="title" class="form-label fw-semibold">Complaint Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg" id="title" name="title" placeholder="Brief summary of the issue (e.g. Wi-Fi Connection Dropping in Lab 3)" required>
+                <div class="form-text">Provide a concise and clear title describing your complaint.</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="category" class="form-label fw-semibold">Complaint Category <span class="text-danger">*</span></label>
+                    <select class="form-select" id="category" name="category" required>
+                        <option value="" selected disabled>-- Select Category --</option>
+                        <option value="Technical Issues">Technical Issues (Software, Network, Portal)</option>
+                        <option value="Academic Issues">Academic Issues (Courses, Exams, Syllabus)</option>
+                        <option value="Infrastructure Issues">Infrastructure Issues (Classroom, Labs, Electrical)</option>
+                        <option value="Service Issues">Service Issues (Library, Cafeteria, Transport)</option>
+                        <option value="Other">Other General Issues</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="priority" class="form-label fw-semibold">Priority Level <span class="text-danger">*</span></label>
+                    <select class="form-select" id="priority" name="priority" required>
+                        <option value="Low">Low - Normal response time</option>
+                        <option value="Medium" selected>Medium - Moderate urgency</option>
+                        <option value="High">High - Urgent resolution required</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="form-label fw-semibold">Detailed Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="description" name="description" rows="6" placeholder="Describe your issue in detail. Include specific locations, dates, timestamps, error messages, or context to help administrators resolve it quickly." required></textarea>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ url_for('user_dashboard') }}" class="btn btn-light border px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4 fw-bold">
+                    <i class="fa-solid fa-paper-plane me-2"></i>Submit Complaint
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
