@@ -1,6 +1,24 @@
 # Complaint Management System 📋
 
+[![Live Demo](https://img.shields.io/badge/Render-Live%20Demo-brightgreen?style=for-the-badge&logo=render)](https://complaint-system-1fje.onrender.com)
+
 A complete full-stack web application built using **Python Flask**, **SQLite**, **SQLAlchemy ORM**, **HTML5**, **CSS3**, **JavaScript**, and **Bootstrap 5**. Designed specifically for educational institutions, corporate offices, and organization grievance redressal workflows.
+
+---
+
+## 🌐 Live Deployed Application
+
+👉 **[https://complaint-system-1fje.onrender.com](https://complaint-system-1fje.onrender.com)**
+
+---
+
+## 🔑 Demo Credentials
+
+| Role | Username / Email | Password | Access Level |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin` | `admin123` | Full admin dashboard, status updates, chart analytics |
+| **Sample User 1** | `rahul@gmail.com` | `user123` | User portal, lodging & tracking complaints |
+| **Sample User 2** | `priya@gmail.com` | `user123` | User portal & profile management |
 
 ---
 
@@ -30,6 +48,7 @@ A complete full-stack web application built using **Python Flask**, **SQLite**, 
 
 - **Backend Framework**: Python 3 & Flask Framework
 - **Database**: SQLite 3 with SQLAlchemy ORM
+- **Deployment Platform**: Render (`gunicorn app:app`)
 - **Security**: Werkzeug Security (`generate_password_hash`, `check_password_hash`)
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5, FontAwesome 6
 - **Data Analytics**: Chart.js
@@ -43,7 +62,7 @@ Complaint_Management_System/
 │
 ├── app.py                      # Core Flask controller & application routes
 ├── config.py                   # App configuration & database connection URI
-├── requirements.txt            # Dependencies (Flask, Flask-SQLAlchemy, Werkzeug)
+├── requirements.txt            # Dependencies (Flask, Flask-SQLAlchemy, Werkzeug, Gunicorn)
 ├── seed.py                     # Initial database seeding script
 ├── README.md                   # Project documentation
 │
@@ -74,7 +93,7 @@ Complaint_Management_System/
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Installation & Local Setup
 
 1. **Clone the repository**:
    ```bash
@@ -97,16 +116,6 @@ Complaint_Management_System/
 
 ---
 
-## 🔑 Demo Credentials
-
-| Role | Username / Email | Password | Access Level |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin` | `admin123` | Full admin dashboard, status updates, chart analytics |
-| **Sample User 1** | `rahul@gmail.com` | `user123` | User portal, lodging & tracking complaints |
-| **Sample User 2** | `priya@gmail.com` | `user123` | User portal & profile management |
-
----
-
 ## 📜 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
